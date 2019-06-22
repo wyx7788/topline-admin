@@ -1,6 +1,6 @@
 <template>
 <div>
-  <p><i class="iconfont iconicon_tel1"></i></p>
+  <p></p>
 </div>
 </template>
 
