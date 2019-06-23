@@ -43,11 +43,11 @@ export default {
       rules: {
         mobile: [
           { required: true, message: '请输入手机号码', trigger: 'blur' },
-          { min: 11, max: 11, message: '长度在 11 个字符', trigger: 'blur' }
+          { len: 11, message: '长度在 11 个字符', trigger: 'blur' }
         ],
         code: [
           { required: true, message: '请输入验证码', trigger: 'blur' },
-          { min: 6, max: 6, message: '长度在 6 个字符', trigger: 'blur' }
+          { len: 6, message: '长度在 6 个字符', trigger: 'blur' }
         ]
       }
     }
@@ -109,14 +109,18 @@ export default {
       })
     },
     submitForm () {
-      // this.$refs[formName].validate((valid) => {
-      //   if (valid) {
-      //     alert('submit!')
-      //   } else {
-      //     console.log('error submit!!')
-      //     return false
-      //   }
-      // })
+      this.$refs['ruleForm'].validate((valid) => {
+        if (!valid) {
+
+        } else {
+          this.submitLogin()
+        }
+      })
+    },
+    resetForm (ruleForm) {
+      this.$refs[ruleForm].resetFields()
+    },
+    submitLogin () {
       this.ButtonLoading = true
       axios({
         method: 'POST',
@@ -130,15 +134,16 @@ export default {
         console.log(res.data)
         console.log(res.message)
         alert(res.data.message)
+        this.ButtonLoading = false
         this.$router.push({
           name: 'Home'
         })
-        this.ButtonLoading = false
       }).catch(err => {
         console.dir(err)
-        if (err.required.status === 400) {
+        if (err.response.status === 400) {
           this.$message.error('错了哦，登录失败，用户名或验证码错误！')
         }
+        this.ButtonLoading = false
       })
     }
   }
