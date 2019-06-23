@@ -81,15 +81,23 @@ export default {
             // 验证码ready之后才能调用verify方法显示验证码
           }).onSuccess(function () {
             // your code
-            var result = captchaObj.getValidate()
+            console.log(captchaObj.getValidate())
+            const {
+              geetest_challenge: challenge,
+              geetest_validate: validate,
+              geetest_seccode: seccode
+            } = captchaObj.getValidate()
             // ajax 伪代码，进行二次验证
             axios({
+              method: 'GET',
               url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${mobile}`,
-              geetest_challenge: result.geetest_challenge,
-              geetest_validate: result.geetest_validate,
-              geetest_seccode: result.geetest_seccode
+              params: {
+                challenge,
+                validate,
+                seccode
+              }
             }).then(res => {
-              close.log(res.data)
+              console.log(res.data)
               // 其他服务端需要的数据，比如登录时的用户名和密码
               // 根据服务端二次验证的结果进行跳转等操作
             })
