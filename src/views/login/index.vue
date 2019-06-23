@@ -18,7 +18,7 @@
           </el-col>
         </el-form-item>
         <el-form-item>
-          <el-button class="btn_login" type="primary" @click="submitForm('ruleForm')">登录</el-button>
+          <el-button class="btn_login" type="primary" @click="submitForm" :loading="ButtonLoading">登录</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -39,6 +39,7 @@ export default {
         code: ''
       },
       captchaObj: null,
+      ButtonLoading: false,
       rules: {
         mobile: [
           { required: true, message: '请输入手机号码', trigger: 'blur' },
@@ -107,13 +108,36 @@ export default {
         })
       })
     },
-    submitForm (formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          alert('submit!')
-        } else {
-          console.log('error submit!!')
-          return false
+    submitForm () {
+      // this.$refs[formName].validate((valid) => {
+      //   if (valid) {
+      //     alert('submit!')
+      //   } else {
+      //     console.log('error submit!!')
+      //     return false
+      //   }
+      // })
+      this.ButtonLoading = true
+      axios({
+        method: 'POST',
+        url: 'http://ttapi.research.itcast.cn/mp/v1_0/authorizations',
+        data: this.ruleForm
+      }).then(res => {
+        this.$message({
+          message: '恭喜你，登录成功！',
+          type: 'success'
+        })
+        console.log(res.data)
+        console.log(res.message)
+        alert(res.data.message)
+        this.$router.push({
+          name: 'Home'
+        })
+        this.ButtonLoading = false
+      }).catch(err => {
+        console.dir(err)
+        if (err.required.status === 400) {
+          this.$message.error('错了哦，登录失败，用户名或验证码错误！')
         }
       })
     }
