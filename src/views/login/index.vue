@@ -17,6 +17,9 @@
             <el-button @click="handleSendCode">获取验证码</el-button>
           </el-col>
         </el-form-item>
+        <el-form-item prop="checked">
+          <el-checkbox v-model="ruleForm.checked">我已阅读并同意<a href="#">用户协议</a>和<a href="#">隐私条款</a></el-checkbox>
+        </el-form-item>
         <el-form-item>
           <el-button class="btn_login" type="primary" @click="submitForm" :loading="ButtonLoading">登录</el-button>
         </el-form-item>
@@ -40,6 +43,7 @@ export default {
       },
       captchaObj: null,
       ButtonLoading: false,
+      checked: '',
       rules: {
         mobile: [
           { required: true, message: '请输入手机号码', trigger: 'blur' },
@@ -48,12 +52,26 @@ export default {
         code: [
           { required: true, message: '请输入验证码', trigger: 'blur' },
           { len: 6, message: '长度在 6 个字符', trigger: 'blur' }
+        ],
+        checked: [
+          { required: true, message: '未同意用户协议', trigger: 'change' },
+          { pattern: /true/, message: '未同意用户协议', trigger: 'change' }
+          // 正则验证
         ]
       }
     }
   },
   methods: {
     handleSendCode () {
+      this.$refs['ruleForm'].validateField('mobile', errorMessage => {
+        console.log('errorMessage=>' + errorMessage)
+        if (errorMessage.trim().length > 0) {
+          return
+        }
+        this.showGeetest()
+      })
+    },
+    showGeetest () {
       const mobile = this.ruleForm.mobile
       console.log(this.ruleForm)
       if (this.captchaObj) {
