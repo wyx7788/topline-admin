@@ -14,7 +14,13 @@
             <el-input v-model="ruleForm.code"></el-input>
           </el-col>
           <el-col :span="8" :offset="2">
-            <el-button @click="handleSendCode">获取验证码</el-button>
+            <el-button
+            @click="handleSendCode"
+            :disabled="!!codeTimer || codeLoading"
+            >
+              {{codeTimer ? `${codeSeconds}秒` : '获取验证码'  }}
+            </el-button>
+            <!-- <el-button @click="handleSendCode">获取验证码</el-button> -->
           </el-col>
         </el-form-item>
         <el-form-item prop="checked">
@@ -32,6 +38,9 @@
 <script>
 import axios from 'axios'
 import '@/vendor/gt.js'
+// import { clearInterval } from 'timers';
+
+const initCodeSeconds = 10 // 定义倒计时的时间
 
 export default {
   name: 'AppLogin',
@@ -44,6 +53,8 @@ export default {
       captchaObj: null,
       ButtonLoading: false,
       checked: '',
+      codeSeconds: initCodeSeconds, // 倒计时时间
+      codeTimer: null, // 定时器标识——数字
       rules: {
         mobile: [
           { required: true, message: '请输入手机号码', trigger: 'blur' },
@@ -58,30 +69,42 @@ export default {
           { pattern: /true/, message: '未同意用户协议', trigger: 'change' }
           // 正则验证
         ]
-      }
+      },
+      sendMobile: '',
+      // 禁止多次点击，禁用获取验证码按钮
+      codeLoading: false
     }
   },
   methods: {
     handleSendCode () {
       this.$refs['ruleForm'].validateField('mobile', errorMessage => {
-        console.log('errorMessage=>' + errorMessage)
+        // console.log('errorMessage=>' + errorMessage)
         if (errorMessage.trim().length > 0) {
           return
         }
-        this.showGeetest()
+
+        if (this.captchaObj) {
+          // return this.captchaObj.verify()
+          if (this.ruleForm.mobile !== this.sendMobile) {
+            this.showGeetest()
+            document.body.removeChild(document.querySelector('.geetest_panel'))
+          } else {
+            this.captchaObj.verify()
+          }
+        } else {
+          this.showGeetest()
+        }
       })
     },
     showGeetest () {
+      this.codeLoading = true
       const mobile = this.ruleForm.mobile
-      console.log(this.ruleForm)
-      if (this.captchaObj) {
-        return this.captchaObj.verify()
-      }
+      // console.log(this.ruleForm)
       axios({
         method: 'GET',
         url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${mobile}`
       }).then(res => {
-        console.log(res.data)
+        // console.log(res.data)
         const data = res.data.data
         window.initGeetest({
           // 以下配置参数来自服务端 SDK
@@ -93,14 +116,17 @@ export default {
         },
         (captchaObj) => {
           this.captchaObj = captchaObj
-          console.log(captchaObj)
+          // console.log(captchaObj)
           // 这里可以调用验证实例 captchaObj 的实例方法
-          captchaObj.onReady(function () {
+          captchaObj.onReady(() => {
             captchaObj.verify()
+            this.sendMobile = this.ruleForm.mobile
             // 验证码ready之后才能调用verify方法显示验证码
-          }).onSuccess(function () {
+            this.codeLoading = false
+            // 极验显示后，验证码按钮 解除禁用
+          }).onSuccess(() => {
             // your code
-            console.log(captchaObj.getValidate())
+            // console.log(captchaObj.getValidate())
             const {
               geetest_challenge: challenge,
               geetest_validate: validate,
@@ -119,25 +145,39 @@ export default {
               console.log(res.data)
               // 其他服务端需要的数据，比如登录时的用户名和密码
               // 根据服务端二次验证的结果进行跳转等操作
+              this.codeCountDown()
             })
-          }).onError(function () {
-            // your code
           })
         })
       })
     },
+    codeCountDown () {
+      console.log('codeCountDown')
+      this.codeTimer = window.setInterval(() => {
+        console.log(initCodeSeconds)
+        console.log(this.codeSeconds)
+        this.codeSeconds--
+        if (this.codeSeconds <= 0) {
+          this.codeSeconds = initCodeSeconds
+          window.clearInterval(this.codeTimer)
+          this.codeTimer = null
+        }
+      }, 1000)
+    },
     submitForm () {
       this.$refs['ruleForm'].validate((valid) => {
-        if (!valid) {
-
-        } else {
+        console.log(valid)
+        if (valid) {
+          // return
           this.submitLogin()
+        } else {
+          return false
         }
       })
     },
-    resetForm (ruleForm) {
-      this.$refs[ruleForm].resetFields()
-    },
+    // resetForm (ruleForm) {
+    //   this.$refs[ruleForm].resetFields()
+    // },
     submitLogin () {
       this.ButtonLoading = true
       axios({
@@ -149,15 +189,15 @@ export default {
           message: '恭喜你，登录成功！',
           type: 'success'
         })
-        console.log(res.data)
-        console.log(res.message)
+        // console.log(res.data)
+        // console.log(res.message)
         alert(res.data.message)
         this.ButtonLoading = false
         this.$router.push({
           name: 'Home'
         })
       }).catch(err => {
-        console.dir(err)
+        // console.dir(err)
         if (err.response.status === 400) {
           this.$message.error('错了哦，登录失败，用户名或验证码错误！')
         }
