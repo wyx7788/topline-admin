@@ -36,7 +36,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 import '@/vendor/gt.js'
 // import { clearInterval } from 'timers';
 
@@ -100,9 +99,9 @@ export default {
       this.codeLoading = true
       const mobile = this.ruleForm.mobile
       // console.log(this.ruleForm)
-      axios({
+      this.$http({
         method: 'GET',
-        url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${mobile}`
+        url: `/captchas/${mobile}`
       }).then(res => {
         // console.log(res.data)
         const data = res.data.data
@@ -133,9 +132,9 @@ export default {
               geetest_seccode: seccode
             } = captchaObj.getValidate()
             // ajax 伪代码，进行二次验证
-            axios({
+            this.$http({
               method: 'GET',
-              url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${mobile}`,
+              url: `/sms/codes/${mobile}`,
               params: {
                 challenge,
                 validate,
@@ -180,11 +179,12 @@ export default {
     // },
     submitLogin () {
       this.ButtonLoading = true
-      axios({
+      this.$http({
         method: 'POST',
-        url: 'http://ttapi.research.itcast.cn/mp/v1_0/authorizations',
+        url: '/authorizations',
         data: this.ruleForm
       }).then(res => {
+        window.localStorage.setItem('user_info', JSON.stringify(res.data.data))
         this.$message({
           message: '恭喜你，登录成功！',
           type: 'success'
