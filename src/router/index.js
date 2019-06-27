@@ -38,30 +38,30 @@ const router = new Router({
 })
 export default router
 
-// const userInfo = window.localStorage.getItem('user_info')
+const userInfo = window.localStorage.getItem('user_info')
 
 router.beforeEach((to, from, next) => {
+  nprogress.start()
   // ...
   // 如果在登录页面
-  // if (to.name === 'login') {
-  //   if (userInfo) {
-  //     // 如果登录了,就不能访问登录页面了
-  //     next(false)
-  //   } else {
-  //     // 没有登录
-  //     next()
-  //   }
-  // } else {
-  //   // 不在登录页面
-  //   if (userInfo) {
-  //     // 如果登录了
-  //     next()
-  //   } else {
-  //     // 没有登录
-  //     next({ name: 'login' })
-  //   }
-  // }
-  nprogress.start()
+  if (to.name === 'login') {
+    if (userInfo) {
+      // 如果登录了,就不能访问登录页面了
+      next(false)
+    } else {
+      // 没有登录
+      next()
+    }
+  } else {
+    // 不在登录页面
+    if (userInfo) {
+      // 如果登录了
+      next()
+    } else {
+      // 没有登录
+      next({ name: 'login' })
+    }
+  }
 })
 router.afterEach((to, from) => {
   // ...

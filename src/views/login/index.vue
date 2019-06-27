@@ -102,9 +102,9 @@ export default {
       this.$http({
         method: 'GET',
         url: `/captchas/${mobile}`
-      }).then(res => {
+      }).then(data => {
         // console.log(res.data)
-        const data = res.data.data
+        // const data = res.data.data
         window.initGeetest({
           // 以下配置参数来自服务端 SDK
           gt: data.gt,
@@ -140,8 +140,8 @@ export default {
                 validate,
                 seccode
               }
-            }).then(res => {
-              console.log(res.data)
+            }).then(data => {
+              console.log(data)
               // 其他服务端需要的数据，比如登录时的用户名和密码
               // 根据服务端二次验证的结果进行跳转等操作
               this.codeCountDown()
@@ -183,15 +183,15 @@ export default {
         method: 'POST',
         url: '/authorizations',
         data: this.ruleForm
-      }).then(res => {
-        window.localStorage.setItem('user_info', JSON.stringify(res.data.data))
+      }).then(data => {
+        window.localStorage.setItem('user_info', JSON.stringify(data))
         this.$message({
           message: '恭喜你，登录成功！',
           type: 'success'
         })
         // console.log(res.data)
         // console.log(res.message)
-        alert(res.data.message)
+        // alert(res.data.message)
         this.ButtonLoading = false
         this.$router.push({
           name: 'Home'
