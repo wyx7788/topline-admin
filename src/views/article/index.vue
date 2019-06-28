@@ -38,7 +38,7 @@
   <!-- 列表部分 -->
   <el-card class="box-card">
     <div slot="header" class="clearfix">
-      <span>共找到20条符合条件的数据</span>
+      <span>共找到15条符合条件的数据</span>
     </div>
     <!-- 表格 -->
     <el-table
@@ -68,7 +68,14 @@
       <el-table-column
         prop="status"
         label="状态"
-        width="180">
+        width="180"
+        >
+        <!-- // 当前遍历对象 scope.row -->
+        <template slot-scope="scope">
+          <el-tag :type="statTypes[scope.row.status].type">
+            {{ statTypes[scope.row.status].label }}
+          </el-tag>
+        </template>
       </el-table-column>
       <el-table-column
         prop="pubdate"
@@ -82,7 +89,7 @@
           <el-button
             size="mini"
             type="danger"
-            @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -111,7 +118,30 @@ export default {
       },
       totalCount: 0,
       articleLoading: false,
-      tableData: [] // 列表数据
+      page: 1,
+      tableData: [], // 列表数据
+      statTypes: [
+        {
+          type: 'info',
+          label: '草稿'
+        },
+        {
+          type: '',
+          label: '待审核'
+        },
+        {
+          type: 'success',
+          label: '审核通过'
+        },
+        {
+          type: 'warning',
+          label: '审核失败'
+        },
+        {
+          type: 'danger',
+          label: '已删除'
+        }
+      ]
     }
   },
   created () {
@@ -136,15 +166,41 @@ export default {
           page
         }
       }).then(data => {
-        console.log(data)
         this.articleLoading = false
         this.tableData = data.results
         this.totalCount = data.total_count
+        console.log(this.totalCount)
       })
     },
     Listenforpageevents (page) {
-      console.log(page)
+      this.page = page
+      // console.log(page)
       this.loadArticles(page)
+    },
+    handleDelete (tableData) {
+      // console.log(tableData.id)
+      this.$confirm('确认删除吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$http({
+          method: 'DELETE',
+          url: `articles/${tableData.id}`
+        }).then(data => {
+          // console.log(data)
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          this.loadArticles(this.page)
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     }
   }
 }

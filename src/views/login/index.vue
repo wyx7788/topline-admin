@@ -194,10 +194,11 @@ export default {
         // alert(res.data.message)
         this.ButtonLoading = false
         this.$router.push({
-          name: 'Home'
+          name: 'home'
         })
+        console.log(data)
       }).catch(err => {
-        // console.dir(err)
+        console.dir(err)
         if (err.response.status === 400) {
           this.$message.error('错了哦，登录失败，用户名或验证码错误！')
         }

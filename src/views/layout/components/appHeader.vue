@@ -16,8 +16,8 @@
     </h1>
     <el-dropdown trigger="click">
       <span class="el-dropdown-link">
-        <img src="user_info.photo">
-        {{user_info.name}}<i class="el-icon-arrow-down el-icon-caret-bottom"></i>
+        <img :src="userInfo.photo">
+        {{userInfo.name}}<i class="el-icon-arrow-down el-icon-caret-bottom"></i>
       </span>
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item icon="el-icon-setting">账户设置</el-dropdown-item>
@@ -36,11 +36,11 @@ export default {
     return {
       activeIndex: '1',
       activeIndex2: '1',
-      user_info: ''
+      userInfo: ''
     }
   },
   created () {
-    this.user_info = JSON.parse(window.localStorage.getItem('user_info'))
+    this.userInfo = JSON.parse(window.localStorage.getItem('user_info'))
   },
   methods: {
     handleSelect (key, keyPath) {
