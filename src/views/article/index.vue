@@ -6,39 +6,54 @@
       <span>筛选条件</span>
     </div>
     <!-- 筛选条件表单 -->
-    <el-form ref="form" :model="form" label-width="80px">
+    <el-form ref="form" :model="filterParams" label-width="80px">
       <el-form-item label="文章状态">
-        <el-radio-group v-model="form.resource">
-          <el-radio label="草稿"></el-radio>
-          <el-radio label="待审核"></el-radio>
-          <el-radio label="审核通过"></el-radio>
-          <el-radio label="审核失败"></el-radio>
+        <el-radio-group v-model="filterParams.status">
+          <el-radio label="">全部</el-radio>
+          <el-radio
+          v-for="(item,index) in statTypes"
+          :key="item.label"
+          :label="index + ''"
+          >{{item.label}}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="频道列表">
-        <el-select v-model="form.region" placeholder="请选择活动区域">
-          <el-option label="区域一" value="shanghai"></el-option>
-          <el-option label="区域二" value="beijing"></el-option>
+        <el-select
+        v-model="filterParams.channel_id"
+        >
+          <el-option label="全部" value=""></el-option>
+          <el-option
+          v-for="item in channels"
+          :key="item.id"
+          :label="item.name"
+          :value="item.id">
+          </el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="时间">
         <el-date-picker
-          v-model="form.value1"
+          v-model="begin_end_pubdata"
           type="daterange"
+          @change="handleDateChange"
+          value-format="yyyy-MM-dd"
           range-separator="至"
           start-placeholder="开始日期"
           end-placeholder="结束日期">
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">查询</el-button>
+        <el-button
+        type="primary"
+        @click="onSubmit"
+        :disabled="articleLoading"
+        >查询</el-button>
       </el-form-item>
     </el-form>
   </el-card>
   <!-- 列表部分 -->
   <el-card class="box-card">
     <div slot="header" class="clearfix">
-      <span>共找到15条符合条件的数据</span>
+      <span>共找到{{totalCount}}条符合条件的数据</span>
     </div>
     <!-- 表格 -->
     <el-table
@@ -97,6 +112,7 @@
     <el-pagination
       class="page"
       background
+      :current-page="page"
       layout="prev, pager, next"
       @current-change="Listenforpageevents"
       :disabled="articleLoading"
@@ -109,6 +125,7 @@
 <script>
 // const userInfo = JSON.parse(window.localStorage.getItem('user_info'))
 export default {
+  name: 'article-list',
   data () {
     return {
       form: {
@@ -118,8 +135,16 @@ export default {
       },
       totalCount: 0,
       articleLoading: false,
+      channels: '',
       page: 1,
       tableData: [], // 列表数据
+      filterParams: {
+        status: '',
+        channel_id: '',
+        begin_pubdate: '',
+        end_pubdate: ''
+      },
+      begin_end_pubdata: [],
       statTypes: [
         {
           type: 'info',
@@ -145,14 +170,39 @@ export default {
     }
   },
   created () {
+    // 加载文章列表
     this.loadArticles()
+    // 加载文章频道
+    this.loadChannels()
   },
   methods: {
+    handleDateChange () {
+      this.filterParams.begin_pubdate = this.begin_end_pubdata[0]
+      this.filterParams.end_pubdate = this.begin_end_pubdata[1]
+    },
+    loadChannels () {
+      this.$http({
+        method: 'GET',
+        url: '/channels'
+      }).then(data => {
+        this.channels = data.channels
+      })
+    },
+    // 查询筛选
     onSubmit () {
       console.log('submit!')
+      this.loadArticles()
+      this.page = 1
     },
+    // 加载文章列表
     loadArticles (page = 1) { // 默认参数显示第一页
       this.articleLoading = true
+      const filterData = {}
+      for (let key in this.filterParams) {
+        if (this.filterParams[key]) {
+          filterData[key] = this.filterParams[key]
+        }
+      }
       this.$http({
         methods: 'GET',
         url: '/articles',
@@ -163,13 +213,15 @@ export default {
         // 路由请求拦截器中加载
         params: {
           per_page: 10,
-          page
+          page,
+          ...filterData
         }
       }).then(data => {
         this.articleLoading = false
-        this.tableData = data.results
-        this.totalCount = data.total_count
+        this.tableData = data.results // 列表数据
+        this.totalCount = data.total_count // 数据总数
         console.log(this.totalCount)
+        this.page = data.page
       })
     },
     Listenforpageevents (page) {
@@ -177,6 +229,7 @@ export default {
       // console.log(page)
       this.loadArticles(page)
     },
+    // 删除文章
     handleDelete (tableData) {
       // console.log(tableData.id)
       this.$confirm('确认删除吗？', '提示', {
@@ -188,7 +241,7 @@ export default {
           method: 'DELETE',
           url: `articles/${tableData.id}`
         }).then(data => {
-          // console.log(data)
+          console.log(data)
           this.$message({
             type: 'success',
             message: '删除成功!'

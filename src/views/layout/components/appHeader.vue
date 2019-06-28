@@ -1,7 +1,6 @@
 <template>
 <div>
   <el-menu
-    :default-active="activeIndex2"
     class="el-menu-demo"
     mode="horizontal"
     @select="handleSelect"
@@ -34,8 +33,6 @@ export default {
   name: 'appHeader',
   data () {
     return {
-      activeIndex: '1',
-      activeIndex2: '1',
       userInfo: ''
     }
   },

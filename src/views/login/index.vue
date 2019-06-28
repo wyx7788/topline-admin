@@ -47,7 +47,7 @@ export default {
     return {
       ruleForm: {
         mobile: '17635158848',
-        code: ''
+        code: '246810'
       },
       captchaObj: null,
       ButtonLoading: false,
@@ -75,6 +75,7 @@ export default {
     }
   },
   methods: {
+    // 验证码事件
     handleSendCode () {
       this.$refs['ruleForm'].validateField('mobile', errorMessage => {
         // console.log('errorMessage=>' + errorMessage)
@@ -165,7 +166,6 @@ export default {
     },
     submitForm () {
       this.$refs['ruleForm'].validate((valid) => {
-        console.log(valid)
         if (valid) {
           // return
           this.submitLogin()
