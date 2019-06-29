@@ -12,9 +12,13 @@
         <el-input v-model="articleForm.title"></el-input>
       </el-form-item>
       <el-form-item label="活动内容" prop="content">
-        <el-input type="textarea" v-model="articleForm.content"></el-input>
+        <quill-editor v-model="articleForm.content"
+          ref="myQuillEditor"
+          :options="editorOption">
+        </quill-editor>
       </el-form-item>
       <el-form-item label="活动封面" prop="cover">
+        <!-- v-model="articleForm.cover.type -->
         <el-radio-group>
           <el-radio label="单张"></el-radio>
           <el-radio label="三张"></el-radio>
@@ -31,17 +35,24 @@
 
 <script>
 import ArticleChannel from '@/components/article-channel'
+// require styles
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+
+import { quillEditor } from 'vue-quill-editor'
 export default {
   name: 'AppPublish',
   components: {
-    ArticleChannel
+    ArticleChannel,
+    quillEditor
   },
   data () {
     return {
       articleForm: {
         title: '',
         cover: {
-          type: 0,
+          type: '',
           images: []
         },
         channel_id: '',
@@ -58,6 +69,9 @@ export default {
         channels: [
           { required: true, message: '请选择活动频道', trigger: 'change' }
         ]
+      },
+      editorOption: {
+        // some quill options
       }
     }
   },
@@ -81,6 +95,14 @@ export default {
         this.$message.error('发布失败')
       })
     }
+  },
+  computed: {
+    editor () {
+      return this.$refs.myQuillEditor.quill
+    }
+  },
+  mounted () {
+    console.log('this is current quill instance object', this.editor)
   }
 }
 </script>
