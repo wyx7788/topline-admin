@@ -23,6 +23,11 @@ const router = new Router({
           component: () => import('@/views/publish')
         },
         {
+          name: 'publish-edit',
+          path: '/publish/:id',
+          component: () => import('@/views/publish')
+        },
+        {
           name: 'article-list',
           path: '/article',
           component: () => import('@/views/article')

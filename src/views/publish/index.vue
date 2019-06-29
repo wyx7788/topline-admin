@@ -7,7 +7,12 @@
         <el-button @click="handlePublish(true)">保存草稿</el-button>
       </div>
     </div>
-    <el-form :model="articleForm" :rules="rules" label-width="100px" class="demo-ruleForm">
+    <el-form
+    :model="articleForm"
+    :rules="rules"
+    v-loading='editLoading'
+    label-width="100px"
+    class="demo-ruleForm">
       <el-form-item label="活动名称" prop="title">
         <el-input v-model="articleForm.title"></el-input>
       </el-form-item>
@@ -51,10 +56,10 @@ export default {
     return {
       articleForm: {
         title: '',
-        cover: {
-          type: '',
-          images: []
-        },
+        // cover: {
+        //   type: '',
+        //   images: []
+        // },
         channel_id: '',
         content: ''
       },
@@ -72,10 +77,28 @@ export default {
       },
       editorOption: {
         // some quill options
-      }
+      },
+      editLoading: true
+    }
+  },
+  created () {
+    if (this.$route.name === 'publish-edit' && this.editLoading) {
+      this.handleEdit()
     }
   },
   methods: {
+    handleEdit () {
+      this.editLoading = true
+      console.log(this.$route)
+      this.$http({
+        method: 'GET',
+        url: `/articles/${this.$route.params.id}`
+      }).then(data => {
+        console.log(data)
+        this.editLoading = false
+        this.articleForm = data
+      })
+    },
     handlePublish (draft) {
       this.$http({
         method: 'POST',
