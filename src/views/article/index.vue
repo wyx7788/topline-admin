@@ -18,17 +18,7 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="频道列表">
-        <el-select
-        v-model="filterParams.channel_id"
-        >
-          <el-option label="全部" value=""></el-option>
-          <el-option
-          v-for="item in channels"
-          :key="item.id"
-          :label="item.name"
-          :value="item.id">
-          </el-option>
-        </el-select>
+        <article-channel v-model="filterParams.channel_id"></article-channel>
       </el-form-item>
       <el-form-item label="时间">
         <el-date-picker
@@ -124,8 +114,12 @@
 
 <script>
 // const userInfo = JSON.parse(window.localStorage.getItem('user_info'))
+import ArticleChannel from '@/components/article-channel'
 export default {
   name: 'article-list',
+  components: {
+    ArticleChannel
+  },
   data () {
     return {
       form: {
@@ -135,7 +129,6 @@ export default {
       },
       totalCount: 0,
       articleLoading: false,
-      channels: '',
       page: 1,
       tableData: [], // 列表数据
       filterParams: {
@@ -172,25 +165,15 @@ export default {
   created () {
     // 加载文章列表
     this.loadArticles()
-    // 加载文章频道
-    this.loadChannels()
   },
   methods: {
     handleDateChange () {
       this.filterParams.begin_pubdate = this.begin_end_pubdata[0]
       this.filterParams.end_pubdate = this.begin_end_pubdata[1]
     },
-    loadChannels () {
-      this.$http({
-        method: 'GET',
-        url: '/channels'
-      }).then(data => {
-        this.channels = data.channels
-      })
-    },
     // 查询筛选
     onSubmit () {
-      console.log('submit!')
+      // console.log('submit!')
       this.loadArticles()
       this.page = 1
     },
@@ -220,7 +203,7 @@ export default {
         this.articleLoading = false
         this.tableData = data.results // 列表数据
         this.totalCount = data.total_count // 数据总数
-        console.log(this.totalCount)
+        // console.log(this.totalCount)
         this.page = data.page
       })
     },

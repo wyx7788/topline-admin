@@ -37,17 +37,17 @@ const router = new Router({
   ]
 })
 router.beforeEach((to, from, next) => {
-  const userInfo = window.localStorage.getItem('user_info')
   nprogress.start()
+  const userInfo = window.localStorage.getItem('user_info')
   // ...
   // 如果不在登录页面
   if (to.path !== '/login') {
-    if (userInfo) {
+    if (!userInfo) {
       // 如果登录了,就不能访问登录页面了
-      next()
+      next({ name: 'login' })
     } else {
       // 没有登录
-      next({ name: 'login' })
+      next()
     }
   } else {
     // 在登录页面
