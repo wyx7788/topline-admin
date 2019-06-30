@@ -6,11 +6,11 @@
         <el-button
         @click="handlePublish(false)"
         type="primary"
-        v-loading="editLoading"
+        :loading="publishLoading"
         >发布</el-button>
         <el-button
         @click="handlePublish(true)"
-        v-loading="editLoading"
+        :loading="publishLoading"
         >保存草稿</el-button>
       </div>
     </div>
@@ -29,7 +29,7 @@
           :options="editorOption">
         </quill-editor>
       </el-form-item>
-      <el-form-item label="活动封面" prop="cover">
+      <el-form-item label="活动封面">
         <!-- v-model="articleForm.cover.type -->
         <el-radio-group>
           <el-radio label="单张"></el-radio>
@@ -63,10 +63,10 @@ export default {
     return {
       articleForm: {
         title: '',
-        // cover: {
-        //   type: '',
-        //   images: []
-        // },
+        cover: {
+          type: 0,
+          images: []
+        },
         channel_id: '',
         content: ''
       },
@@ -85,29 +85,47 @@ export default {
       editorOption: {
         // some quill options
       },
-      editLoading: true
+      editLoading: true,
+      publishLoading: false
     }
   },
   created () {
-    if (this.isEdit && this.editLoading) {
+    if (this.isEdit) {
       this.handleEdit()
     }
   },
   methods: {
+    // 加载编辑的文章
     handleEdit () {
       this.editLoading = true
+      this.publishLoading = true
       console.log(this.$route)
       this.$http({
         method: 'GET',
-        url: `/articles/${this.$route.params.id}`
+        url: `/articles/${this.articleId}`
       }).then(data => {
         console.log(data)
         this.editLoading = false
+        this.publishLoading = false
         this.articleForm = data
       })
     },
-    handlePublish (draft) {
-      this.$http({
+    handlePublish (draft = false) {
+      this.publishLoading = true
+      if (this.isEdit) {
+        // 编辑页面
+        this.articleEdit(draft).then(() => {
+          this.publishLoading = false
+        })
+      } else {
+        // 发布页面
+        this.articleAdd(draft).then(() => {
+          this.publishLoading = false
+        })
+      }
+    },
+    articleAdd (draft) {
+      return this.$http({
         method: 'POST',
         url: '/articles',
         data: this.articleForm,
@@ -124,6 +142,24 @@ export default {
         console.log(err)
         this.$message.error('发布失败')
       })
+    },
+    articleEdit (draft) {
+      return this.$http({
+        method: 'PUT',
+        url: `/articles/${this.articleId}`,
+        params: {
+          draft
+        },
+        data: this.articleForm
+      }).then(data => {
+        this.$message({
+          type: 'success',
+          message: '编辑成功'
+        })
+      }).catch(err => {
+        console.log(err)
+        this.$message.error('编辑失败')
+      })
     }
   },
   computed: {
@@ -133,6 +169,9 @@ export default {
     },
     isEdit () {
       return this.$route.name === 'publish-edit'
+    },
+    articleId () {
+      return this.$route.params.id
     }
   },
   mounted () {
