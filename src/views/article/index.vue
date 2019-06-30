@@ -210,7 +210,7 @@ export default {
     },
     Listenforpageevents (page) {
       this.page = page
-      // console.log(page)
+      console.log(page)
       this.loadArticles(page)
     },
     // 删除文章
@@ -246,8 +246,5 @@ export default {
 <style lang='less' scoped>
 .Screen_conditions{
   margin-bottom: 10px;
-}
-.page{
-  margin-top: 20px;
 }
 </style>
