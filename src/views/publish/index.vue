@@ -1,16 +1,23 @@
 <template>
   <el-card class="box-card">
     <div slot="header" class="clearfix">
-      <span>发布文章</span>
+      <span>{{isEdit ? '编辑' : '发布'}}文章</span>
       <div>
-        <el-button @click="handlePublish(false)" type="primary">发布</el-button>
-        <el-button @click="handlePublish(true)">保存草稿</el-button>
+        <el-button
+        @click="handlePublish(false)"
+        type="primary"
+        v-loading="editLoading"
+        >发布</el-button>
+        <el-button
+        @click="handlePublish(true)"
+        v-loading="editLoading"
+        >保存草稿</el-button>
       </div>
     </div>
     <el-form
     :model="articleForm"
     :rules="rules"
-    v-loading='editLoading'
+    v-loading='isEdit && editLoading'
     label-width="100px"
     class="demo-ruleForm">
       <el-form-item label="活动名称" prop="title">
@@ -82,7 +89,7 @@ export default {
     }
   },
   created () {
-    if (this.$route.name === 'publish-edit' && this.editLoading) {
+    if (this.isEdit && this.editLoading) {
       this.handleEdit()
     }
   },
@@ -120,8 +127,12 @@ export default {
     }
   },
   computed: {
+    // 计算属性，只调用一次
     editor () {
       return this.$refs.myQuillEditor.quill
+    },
+    isEdit () {
+      return this.$route.name === 'publish-edit'
     }
   },
   mounted () {
