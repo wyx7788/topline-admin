@@ -49,6 +49,9 @@ export default {
     return {}
   },
   methods: {
+    // indexPath (index ,indexPath) {
+    //   console.log(index,indexPath)
+    // },
     handleOpen (key, keyPath) {
       console.log(key, keyPath)
     },
