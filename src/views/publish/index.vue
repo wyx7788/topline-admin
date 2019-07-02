@@ -100,6 +100,26 @@ export default {
   //     deep: true // 深度监视
   //   }
   // },
+  watch: {
+    $route (to, from) {
+      console.log(to)
+      console.log(from)
+      // 如果从编辑页面
+      if (from.name === 'publish-edit') {
+        // 情况表单数据
+        // 这样情况，发布页面就会变脏，最好发布和编辑使用俩个页面
+        this.articleForm = {
+          title: '',
+          cover: {
+            type: 0,
+            images: []
+          },
+          channel_id: '',
+          content: ''
+        }
+      }
+    }
+  },
   created () {
     if (this.isEdit) {
       this.handleEdit()
@@ -156,7 +176,6 @@ export default {
         this.$router.push({
           path: '/article'
         })
-        this.indexPath()
         this.$message({
           type: 'success',
           message: '发布成功'
