@@ -62,6 +62,7 @@
 </template>
 
 <script>
+// const userInfo = window.localStorage.getItem('user_info')
 export default {
   name: 'accout_info',
   data () {
@@ -73,6 +74,7 @@ export default {
   },
   created () {
     this.loadUserInfo()
+    // console.log(JSON.parse(userInfo))
   },
   methods: {
     handleAvatarSuccess (res, file) {
@@ -103,6 +105,11 @@ export default {
         console.log(data)
         // console.log(this.userInfo)
         this.userInfoForm.photo = data.photo
+        // this.$store.commit('changeUser', {
+        //   photo: this.userInfoForm.photo
+        // })
+        // 传入对象
+        this.$store.commit('changeUser', this.userInfoForm)
         this.$message({
           type: 'success',
           message: '上传头像成功'
@@ -140,6 +147,8 @@ export default {
         })
         console.log(data)
         this.ButtonLoading = false
+        // $store.changeUser()
+        this.$store.commit('changeUser', data)
         this.$message({
           type: 'success',
           message: '保存成功'

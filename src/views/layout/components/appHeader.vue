@@ -15,8 +15,8 @@
     </h1>
     <el-dropdown trigger="click">
       <span class="el-dropdown-link">
-        <img :src="userInfo.photo">
-        {{userInfo.name}}<i class="el-icon-arrow-down el-icon-caret-bottom"></i>
+        <img :src="$store.state.user.photo">
+        {{$store.state.user.name}}<i class="el-icon-arrow-down el-icon-caret-bottom"></i>
       </span>
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item

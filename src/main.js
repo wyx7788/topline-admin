@@ -8,6 +8,8 @@ import 'nprogress/nprogress.css'
 
 import axios from 'axios'
 
+import store from './store'
+
 // import json-bigint from 'json-bigint'
 import JSONbig from 'json-bigint'
 
@@ -82,5 +84,6 @@ axios.interceptors.response.use((response) => {
 
 new Vue({
   router,
+  store,
   render: h => h(App)
 }).$mount('#app')
