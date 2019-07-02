@@ -36,6 +36,11 @@ const router = new Router({
           name: 'articleComment',
           path: '/comment',
           component: () => import('@/views/comment')
+        },
+        {
+          name: 'account',
+          path: '/account',
+          component: () => import('@/views/account')
         }
       ]
     },

@@ -117,10 +117,16 @@ export default {
         this.articleEdit(draft).then(() => {
           this.publishLoading = false
         })
+        this.$router.push({
+          name: 'article-list'
+        })
       } else {
         // 发布页面
         this.articleAdd(draft).then(() => {
           this.publishLoading = false
+        })
+        this.$router.push({
+          name: 'article-list'
         })
       }
     },

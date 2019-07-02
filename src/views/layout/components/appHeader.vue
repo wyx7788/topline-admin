@@ -19,8 +19,12 @@
         {{userInfo.name}}<i class="el-icon-arrow-down el-icon-caret-bottom"></i>
       </span>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item icon="el-icon-setting">账户设置</el-dropdown-item>
-        <el-dropdown-item icon="el-icon-switch-button">退出</el-dropdown-item>
+        <el-dropdown-item
+        icon="el-icon-setting"
+        @click.native="$router.push({name: 'account'})">账户设置</el-dropdown-item>
+        <el-dropdown-item
+        icon="el-icon-switch-button"
+        @click.native="handleLogOut">退出</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
     <el-menu-item class="fr" index="4"><a href="#" target="_blank">消息</a></el-menu-item>
@@ -42,6 +46,27 @@ export default {
   methods: {
     handleSelect (key, keyPath) {
       console.log(key, keyPath)
+    },
+    handleLogOut () {
+      this.$confirm('确定退出登录吗？', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        window.localStorage.removeItem('user_info')
+        this.$router.push({
+          name: 'login'
+        })
+        this.$message({
+          type: 'success',
+          message: '退出成功!'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消退出'
+        })
+      })
     }
   }
 }
